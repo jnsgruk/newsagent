@@ -114,7 +114,7 @@ impl Tool for TodoistTasksTool {
                     );
                     let tasks = self.fetch_tasks(Some(&s.id)).await?;
                     log::info!("fetched {} tasks", tasks.len());
-                    let markdown = self.render_tasks(&tasks, &[s.clone()], true);
+                    let markdown = self.render_tasks(&tasks, std::slice::from_ref(s), true);
                     Ok(TodoistTasksOutput { markdown })
                 }
                 None => {
