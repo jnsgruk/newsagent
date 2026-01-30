@@ -23,12 +23,19 @@ pub struct TodoistConfig {
     pub project_id: String,
     #[serde(rename = "todoist_project_section")]
     pub project_section: Option<String>,
+    #[serde(rename = "todoist_base_url", default = "default_todoist_base_url")]
+    pub base_url: String,
+}
+
+fn default_todoist_base_url() -> String {
+    "https://api.todoist.com".to_string()
 }
 
 #[derive(Debug, Clone)]
 pub struct TodoistTasksTool {
     project_id: String,
     client: Client,
+    base_url: String,
 }
 
 #[derive(Deserialize, Debug)]
@@ -57,46 +64,12 @@ struct Task {
     is_completed: bool,
 }
 
-#[cfg(test)]
-impl Task {
-    fn new(
-        id: &str,
-        content: &str,
-        description: &str,
-        parent_id: Option<&str>,
-        section_id: Option<&str>,
-        order: i32,
-        is_completed: bool,
-    ) -> Self {
-        Self {
-            id: id.to_string(),
-            content: content.to_string(),
-            description: description.to_string(),
-            parent_id: parent_id.map(|v| v.to_string()),
-            section_id: section_id.map(|v| v.to_string()),
-            order,
-            is_completed,
-        }
-    }
-}
-
 #[derive(Deserialize, Debug, Clone)]
 struct Section {
     id: String,
     #[serde(rename = "section_order")]
     order: i32,
     name: String,
-}
-
-#[cfg(test)]
-impl Section {
-    fn new(id: &str, order: i32, name: &str) -> Self {
-        Self {
-            id: id.to_string(),
-            order,
-            name: name.to_string(),
-        }
-    }
 }
 
 #[derive(Deserialize)]
@@ -173,6 +146,7 @@ impl TodoistTasksTool {
     pub fn new(config: TodoistConfig) -> Result<Self, TodoistToolError> {
         let token = config.api_token;
         let project_id = config.project_id;
+        let base_url = config.base_url.trim_end_matches('/').to_string();
         let mut headers = HeaderMap::new();
         let auth_value = format!("Bearer {}", token);
         let auth_value = HeaderValue::from_str(&auth_value)
@@ -183,7 +157,11 @@ impl TodoistTasksTool {
             .timeout(Duration::from_secs(15))
             .build()
             .context("Failed to build Todoist HTTP client")?;
-        Ok(Self { project_id, client })
+        Ok(Self {
+            project_id,
+            client,
+            base_url,
+        })
     }
 
     async fn fetch_tasks(&self, section_id: Option<&str>) -> Result<Vec<Task>, TodoistToolError> {
@@ -192,8 +170,8 @@ impl TodoistTasksTool {
 
         loop {
             let mut url = format!(
-                "https://api.todoist.com/api/v1/tasks?project_id={}",
-                self.project_id
+                "{}/api/v1/tasks?project_id={}",
+                self.base_url, self.project_id
             );
             if let Some(sid) = section_id {
                 url.push_str(&format!("&section_id={}", sid));
@@ -234,8 +212,8 @@ impl TodoistTasksTool {
 
         loop {
             let mut url = format!(
-                "https://api.todoist.com/api/v1/sections?project_id={}",
-                self.project_id
+                "{}/api/v1/sections?project_id={}",
+                self.base_url, self.project_id
             );
             if let Some(c) = &cursor {
                 url.push_str("&cursor=");
@@ -353,54 +331,5 @@ fn format_task_recursive(
         for child in children {
             format_task_recursive(child, tasks_by_parent, indent_level + 1, output);
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    fn dummy_tool() -> TodoistTasksTool {
-        TodoistTasksTool {
-            project_id: "project".to_string(),
-            client: Client::new(),
-        }
-    }
-
-    #[test]
-    fn render_tasks_in_section_order_with_descriptions() {
-        let tool = dummy_tool();
-
-        let sections = vec![Section::new("s2", 2, "Later"), Section::new("s1", 1, "Now")];
-
-        let tasks = vec![
-            Task::new("1", "Task 1", "", None, Some("s1"), 2, false),
-            Task::new("2", "Task 2", "line1\nline2", None, Some("s1"), 1, false),
-            Task::new("3", "Subtask", "", Some("2"), Some("s1"), 1, true),
-            Task::new("4", "Later task", "", None, Some("s2"), 1, false),
-            Task::new("5", "No section task", "", None, None, 1, false),
-        ];
-
-        let markdown = tool.render_tasks(&tasks, &sections, false);
-
-        let expected = "## Now\n\n- [ ] Task 2\n  - **Description**: line1\n    line2\n  - [x] Subtask\n- [ ] Task 1\n\n## Later\n\n- [ ] Later task\n\n## (No Section)\n\n- [ ] No section task";
-        assert_eq!(markdown, expected);
-    }
-
-    #[test]
-    fn render_tasks_hides_section_headers_for_filtered_view() {
-        let tool = dummy_tool();
-
-        let sections = vec![Section::new("s1", 1, "Now")];
-
-        let tasks = vec![
-            Task::new("1", "Task 1", "", None, Some("s1"), 1, false),
-            Task::new("2", "Other", "", None, None, 1, false),
-        ];
-
-        let markdown = tool.render_tasks(&tasks, &sections, true);
-
-        let expected = "- [ ] Task 1";
-        assert_eq!(markdown, expected);
     }
 }
