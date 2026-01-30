@@ -5,7 +5,8 @@ fn build_initial_prompt_includes_base_prompt_and_web_hint() {
     let output = build_initial_prompt(None);
 
     assert!(output.starts_with(PROMPT));
-    assert!(output.contains("When a response needs link verification or summaries, use the browse_web tool"));
+    assert!(output
+        .contains("When a response needs link verification or summaries, use the browse_web tool"));
 }
 
 #[test]
