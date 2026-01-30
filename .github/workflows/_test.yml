@@ -1,0 +1,21 @@
+name: Test
+
+on:
+  workflow_call:
+
+jobs:
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v5
+
+      - name: Install nix
+        uses: DeterminateSystems/nix-installer-action@v19
+
+      - name: Build
+        run: nix develop -c cargo build
+
+      - name: Run tests
+        run: nix develop -c cargo test
