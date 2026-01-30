@@ -23,3 +23,6 @@ reqwest = { version = "0.12", default-features = false, features = [
 ] }
 readability = { version = "0.3", default-features = false }
 url = "2.5"
+
+[dev-dependencies]
+tempfile = "3.12"
