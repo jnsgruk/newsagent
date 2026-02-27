@@ -1,3 +1,4 @@
+use crate::tools::discourse::DiscourseConfig;
 use crate::tools::glean::GleanConfig;
 use crate::tools::todoist::TodoistConfig;
 use crate::tools::web::WebConfig;
@@ -15,6 +16,8 @@ pub struct AppConfig {
     pub glean: GleanConfig,
     #[serde(flatten)]
     pub web: WebConfig,
+    #[serde(flatten)]
+    pub discourse: DiscourseConfig,
 }
 
 impl AppConfig {
