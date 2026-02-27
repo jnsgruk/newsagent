@@ -24,5 +24,5 @@ impl AppConfig {
 }
 
 fn default_gemini_model() -> String {
-    "gemini-3-pro-preview".to_string()
+    "gemini-3.1-pro-preview".to_string()
 }
