@@ -22,6 +22,7 @@ Gemini as an LLM backend. The flow is as follows:
 - Use the [glean tool](./src/tools/glean.rs) to gather existing drafts on my filesystem as context
 - Use the [todoist tool](./src/tools/todoist.rs) to get the list of tasks for this month
 - Use the [web tool](./src/tools/web.rs) to browse to the links to understand the release
+- Use the [discourse tool](./src/tools/discourse.rs) to fetch posts from private Discourse instances via API
 
 Once this is done, the agent instructs the LLM to generate the "Tech Updates" section.
 
@@ -49,6 +50,7 @@ Newsagent is configured via environment variables. You can set these in your she
 | `NEWSAGENT_WEB_ALLOWLIST`           | Comma-separated list of allowed domains for scraping. | (All allowed)             |
 | `NEWSAGENT_WEB_MAX_CHARS`           | Maximum number of characters to read from a webpage.  |                           |
 | `NEWSAGENT_WEB_TIMEOUT_SECS`        | Timeout for web requests in seconds.                  |                           |
+| `NEWSAGENT_DISCOURSE_INSTANCES`     | Comma-separated `host=api_key` pairs for Discourse.   |                           |
 | `NEWSAGENT_DOTENV_PATH`             | Custom path to the `.env` file.                       | `.env`                    |
 
 ## Setup & Usage
