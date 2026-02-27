@@ -131,13 +131,11 @@ impl Tool for DiscourseTool {
 
     async fn call(&self, args: Self::Args) -> Result<Self::Output, Self::Error> {
         log::info!("fetching discourse topic {}...", args.url);
-        let url = Url::parse(&args.url)
-            .map_err(|_| DiscourseToolError::InvalidUrl(args.url.clone()))?;
+        let url =
+            Url::parse(&args.url).map_err(|_| DiscourseToolError::InvalidUrl(args.url.clone()))?;
 
         let instance = self.find_instance(&url).ok_or_else(|| {
-            DiscourseToolError::NoMatchingInstance(
-                url.host_str().unwrap_or("unknown").to_string(),
-            )
+            DiscourseToolError::NoMatchingInstance(url.host_str().unwrap_or("unknown").to_string())
         })?;
 
         let (topic_id, post_number) = Self::parse_topic_url(&url)
