@@ -48,7 +48,7 @@ Always start the heading with the correct emoji:
 cannot be found, explicitly flag it in the text.
 "#;
 
-pub fn build_initial_prompt(section: Option<&str>) -> String {
+pub fn build_initial_prompt(section: Option<&str>, discourse_hosts: &[String]) -> String {
     let section_hint = section
         .filter(|s| !s.trim().is_empty())
         .map(|s| {
@@ -61,5 +61,14 @@ pub fn build_initial_prompt(section: Option<&str>) -> String {
 
     let web_hint = "\n\nWhen a response needs link verification or summaries, use the browse_web tool on those URLs.";
 
-    format!("{}{}{}", PROMPT, section_hint, web_hint)
+    let discourse_hint = if discourse_hosts.is_empty() {
+        String::new()
+    } else {
+        format!(
+            "\n\nFor URLs on these Discourse instances: {}, use the discourse_fetch tool instead of browse_web. It authenticates with the Discourse API and can access private/restricted posts.",
+            discourse_hosts.join(", ")
+        )
+    };
+
+    format!("{}{}{}{}", PROMPT, section_hint, web_hint, discourse_hint)
 }
