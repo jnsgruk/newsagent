@@ -16,9 +16,11 @@ You have the following tools. Use them — do not attempt to browse or verify an
 - **browse_web** — fetch and extract readable content from a URL. Use this to read release notes,
   blog posts, changelogs, and documentation pages. Call it on every URL you need to summarise.
 - **local_markdown_context** — retrieve local markdown files for style reference.
-- **discourse_fetch** — fetch content from configured Discourse instances. Use this *instead of*
-  browse_web for Discourse URLs (it authenticates with the API and can access private/restricted
-  posts). See the dynamic hints below for which hosts are configured.
+- **discourse_fetch** — fetch content from configured Discourse instances via the structured JSON
+  API. **Always use this instead of browse_web for any Discourse URL** — it returns cleaner,
+  more complete content and works without authentication for public posts. When an API key is
+  configured it can also access private/restricted content. See the dynamic hints below for
+  which hosts are configured.
 
 When a URL needs to be read, call the appropriate tool. If you cannot fetch a URL, note it in the
 Editor Review Notes (see below) and write what you can from the task title alone.
@@ -295,7 +297,7 @@ pub fn build_initial_prompt(section: Option<&str>, discourse_hosts: &[String]) -
         String::new()
     } else {
         format!(
-            "\n\nFor URLs on these Discourse instances: {}, use the discourse_fetch tool instead of browse_web. It authenticates with the Discourse API and can access private/restricted posts.",
+            "\n\nThe following Discourse instances are configured: {}. ALWAYS use discourse_fetch instead of browse_web for URLs on these hosts — it uses the structured Discourse JSON API and returns cleaner, more reliable content than web scraping. It works for all public content and, where an API key is configured, can also access private/restricted posts.",
             discourse_hosts.join(", ")
         )
     };

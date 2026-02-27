@@ -46,7 +46,7 @@ fn build_initial_prompt_includes_discourse_hint_when_hosts_present() {
 
     assert!(output.contains("discourse_fetch"));
     assert!(output.contains("discourse.canonical.com, discourse.charmhub.io"));
-    assert!(output.contains("private/restricted posts"));
+    assert!(output.contains("ALWAYS use discourse_fetch"));
 }
 
 #[test]

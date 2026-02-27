@@ -20,7 +20,7 @@ pub enum DiscourseToolError {
 #[derive(Debug, Clone)]
 pub struct DiscourseInstance {
     pub base_url: String,
-    pub api_key: String,
+    pub api_key: Option<String>,
 }
 
 #[derive(Deserialize, Debug, Clone, Default)]
@@ -47,16 +47,16 @@ where
     s.split(',')
         .map(|entry| {
             let entry = entry.trim();
-            let (base_url, api_key) = entry.split_once('=').ok_or_else(|| {
-                serde::de::Error::custom(format!(
-                    "invalid discourse instance '{}': expected 'host=api_key'",
-                    entry
-                ))
-            })?;
-            Ok(DiscourseInstance {
-                base_url: base_url.trim().to_string(),
-                api_key: api_key.trim().to_string(),
-            })
+            let (base_url, api_key) = if let Some((host, key)) = entry.split_once('=') {
+                let key = key.trim();
+                (
+                    host.trim().to_string(),
+                    if key.is_empty() { None } else { Some(key.to_string()) },
+                )
+            } else {
+                (entry.to_string(), None)
+            };
+            Ok(DiscourseInstance { base_url, api_key })
         })
         .collect()
 }
@@ -114,7 +114,7 @@ impl Tool for DiscourseTool {
         ToolDefinition {
             name: Self::NAME.to_string(),
             description:
-                "Fetch a Discourse topic or post using the API. Use this for URLs matching configured Discourse instances."
+                "Fetch a Discourse topic or post using the structured JSON API. ALWAYS prefer this over browse_web for any URL matching a configured Discourse instance — it returns cleaner, more complete content. Works with or without an API key for public content."
                     .to_string(),
             parameters: serde_json::json!({
                 "type": "object",
@@ -143,11 +143,13 @@ impl Tool for DiscourseTool {
 
         let scheme = url.scheme();
         let api_url = format!("{}://{}/t/{}.json", scheme, instance.base_url, topic_id);
-        let response = self
-            .client
-            .get(&api_url)
-            .header("Api-Key", &instance.api_key)
-            .header("Api-Username", "system")
+        let mut request = self.client.get(&api_url);
+        if let Some(ref api_key) = instance.api_key {
+            request = request
+                .header("Api-Key", api_key)
+                .header("Api-Username", "system");
+        }
+        let response = request
             .send()
             .await
             .context("Discourse API request failed")?

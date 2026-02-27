@@ -24,9 +24,9 @@ fn config_parses_comma_separated_instances() {
 
     assert_eq!(config.instances.len(), 2);
     assert_eq!(config.instances[0].base_url, "discourse.canonical.com");
-    assert_eq!(config.instances[0].api_key, "abc123");
+    assert_eq!(config.instances[0].api_key.as_deref(), Some("abc123"));
     assert_eq!(config.instances[1].base_url, "discourse.charmhub.io");
-    assert_eq!(config.instances[1].api_key, "def456");
+    assert_eq!(config.instances[1].api_key.as_deref(), Some("def456"));
 }
 
 #[test]
@@ -42,7 +42,7 @@ fn config_single_instance() {
 
     assert_eq!(config.instances.len(), 1);
     assert_eq!(config.instances[0].base_url, "discourse.canonical.com");
-    assert_eq!(config.instances[0].api_key, "abc123");
+    assert_eq!(config.instances[0].api_key.as_deref(), Some("abc123"));
 }
 
 #[test]
@@ -67,6 +67,24 @@ fn config_empty_when_var_blank() {
     assert!(config.instances.is_empty());
 }
 
+#[test]
+fn config_parses_instances_without_api_keys() {
+    let _guard = with_newsagent_env(vec![(
+        "NEWSAGENT_DISCOURSE_INSTANCES",
+        "discourse.canonical.com,discourse.charmhub.io=def456",
+    )]);
+
+    let config = envy::prefixed("NEWSAGENT_")
+        .from_env::<DiscourseConfig>()
+        .expect("Failed to parse DiscourseConfig from env");
+
+    assert_eq!(config.instances.len(), 2);
+    assert_eq!(config.instances[0].base_url, "discourse.canonical.com");
+    assert!(config.instances[0].api_key.is_none());
+    assert_eq!(config.instances[1].base_url, "discourse.charmhub.io");
+    assert_eq!(config.instances[1].api_key.as_deref(), Some("def456"));
+}
+
 // -- Tool tests --
 
 fn discourse_response(title: &str, posts: &[(&str, &str, &str, u64)]) -> String {
@@ -87,12 +105,12 @@ fn discourse_response(title: &str, posts: &[(&str, &str, &str, u64)]) -> String 
     )
 }
 
-fn tool_with_instance(base_url: &str, api_key: &str, max_chars: usize) -> DiscourseTool {
+fn tool_with_instance(base_url: &str, api_key: Option<&str>, max_chars: usize) -> DiscourseTool {
     DiscourseTool::new(
         DiscourseConfig {
             instances: vec![DiscourseInstance {
                 base_url: base_url.to_string(),
-                api_key: api_key.to_string(),
+                api_key: api_key.map(|k| k.to_string()),
             }],
         },
         max_chars,
@@ -124,7 +142,7 @@ async fn fetches_topic_from_api() {
         .mount(&server)
         .await;
 
-    let tool = tool_with_instance(&host, "test-key", 8000);
+    let tool = tool_with_instance(&host, Some("test-key"), 8000);
     let url = format!("{}/t/some-slug/12345", server.uri());
     let output = tool
         .call(DiscourseArgs { url: url.clone() })
@@ -137,6 +155,34 @@ async fn fetches_topic_from_api() {
     assert_eq!(output.text.trim(), "Hello world");
     assert_eq!(output.source_url, url);
     assert!(!output.truncated);
+}
+
+#[tokio::test]
+async fn fetches_topic_without_api_key() {
+    let server = MockServer::start().await;
+    let host = server.uri().replace("http://", "");
+
+    let body = discourse_response(
+        "Public Topic",
+        &[("bob", "2025-07-01T10:00:00Z", "<p>Public content</p>", 1)],
+    );
+
+    Mock::given(method("GET"))
+        .and(path("/t/555.json"))
+        .respond_with(ResponseTemplate::new(200).set_body_string(&body))
+        .mount(&server)
+        .await;
+
+    let tool = tool_with_instance(&host, None, 8000);
+    let url = format!("{}/t/some-slug/555", server.uri());
+    let output = tool
+        .call(DiscourseArgs { url: url.clone() })
+        .await
+        .expect("Discourse tool call failed");
+
+    assert_eq!(output.title, "Public Topic");
+    assert_eq!(output.author, "bob");
+    assert_eq!(output.source_url, url);
 }
 
 #[tokio::test]
@@ -158,7 +204,7 @@ async fn fetches_specific_post_number() {
         .mount(&server)
         .await;
 
-    let tool = tool_with_instance(&host, "key", 8000);
+    let tool = tool_with_instance(&host, Some("key"), 8000);
     let url = format!("{}/t/slug/99/2", server.uri());
     let output = tool
         .call(DiscourseArgs { url })
@@ -171,7 +217,7 @@ async fn fetches_specific_post_number() {
 
 #[tokio::test]
 async fn rejects_url_with_no_matching_instance() {
-    let tool = tool_with_instance("discourse.example.com", "key", 8000);
+    let tool = tool_with_instance("discourse.example.com", Some("key"), 8000);
 
     let err = tool
         .call(DiscourseArgs {
@@ -190,7 +236,7 @@ async fn rejects_url_with_no_matching_instance() {
 
 #[tokio::test]
 async fn rejects_non_discourse_url() {
-    let tool = tool_with_instance("discourse.example.com", "key", 8000);
+    let tool = tool_with_instance("discourse.example.com", Some("key"), 8000);
 
     let err = tool
         .call(DiscourseArgs {
@@ -228,7 +274,7 @@ async fn truncates_long_content() {
         .mount(&server)
         .await;
 
-    let tool = tool_with_instance(&host, "key", 10);
+    let tool = tool_with_instance(&host, Some("key"), 10);
     let url = format!("{}/t/slug/1", server.uri());
     let output = tool
         .call(DiscourseArgs { url })
