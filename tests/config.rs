@@ -23,7 +23,7 @@ fn test_config_loads_valid_config() {
     assert_eq!(config.todoist.project_id, "12345");
     assert_eq!(config.glean.dir, "/tmp/glean");
     // Check default
-    assert_eq!(config.gemini_model, "gemini-3-pro-preview");
+    assert_eq!(config.gemini_model, "gemini-3.1-pro-preview");
 }
 
 #[test]
