@@ -25,6 +25,29 @@ You have the following tools. Use them — do not attempt to browse or verify an
 When a URL needs to be read, call the appropriate tool. If you cannot fetch a URL, note it in the
 Editor Review Notes (see below) and write what you can from the task title alone.
 
+# Supplementary Release Notes
+
+For some products, the GitHub release page is just a tag with an auto-generated list of PRs. The
+detailed, narrative release notes live on documentation.ubuntu.com. **Always browse the
+documentation URL in addition to the GitHub release** for the products below.
+
+Construct the documentation URL from the version number using these templates:
+
+- **Juju**: `https://documentation.ubuntu.com/juju/{major.minor}/releasenotes/juju_{major.minor}.x/`
+  Example: for Juju 3.6.14 → browse `https://documentation.ubuntu.com/juju/3.6/releasenotes/juju_3.6.x/`
+
+- **Snapcraft**: `https://documentation.ubuntu.com/snapcraft/stable/release-notes/snapcraft-{major}-{minor}/`
+  Example: for Snapcraft 8.14.2 → browse `https://documentation.ubuntu.com/snapcraft/stable/release-notes/snapcraft-8-14/`
+
+- **Rockcraft**: `https://documentation.ubuntu.com/rockcraft/{version}/release-notes/rockcraft-{major}-{minor}/`
+  Example: for Rockcraft 1.17.0 → browse `https://documentation.ubuntu.com/rockcraft/1.17.0/release-notes/rockcraft-1-17/`
+
+- **Juju Terraform Provider**: The GitHub release page lists PRs but lacks narrative detail. Also
+  browse the CHANGELOG: `https://github.com/juju/terraform-provider-juju/blob/main/CHANGELOG.md`
+
+If a documentation URL returns an error, fall back to the GitHub release content and note the
+missing docs link in the Editor Review Notes.
+
 # Output Format
 
 ## Document Structure
