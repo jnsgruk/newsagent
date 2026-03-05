@@ -51,7 +51,11 @@ where
                 let key = key.trim();
                 (
                     host.trim().to_string(),
-                    if key.is_empty() { None } else { Some(key.to_string()) },
+                    if key.is_empty() {
+                        None
+                    } else {
+                        Some(key.to_string())
+                    },
                 )
             } else {
                 (entry.to_string(), None)

@@ -17,21 +17,21 @@ fn prompt_contains_browse_web_instruction() {
 
 #[test]
 fn build_initial_prompt_includes_base_prompt() {
-    let output = build_initial_prompt(None, &[]);
+    let output = build_initial_prompt(None, &[], &[]);
 
     assert!(output.starts_with(PROMPT));
 }
 
 #[test]
 fn build_initial_prompt_includes_section_hint() {
-    let output = build_initial_prompt(Some("  Weekly Updates  "), &[]);
+    let output = build_initial_prompt(Some("  Weekly Updates  "), &[], &[]);
 
     assert!(output.contains("Use the todoist_tasks tool with section: \"Weekly Updates\"."));
 }
 
 #[test]
 fn build_initial_prompt_ignores_blank_section() {
-    let output = build_initial_prompt(Some("  "), &[]);
+    let output = build_initial_prompt(Some("  "), &[], &[]);
 
     assert!(!output.contains("todoist_tasks tool"));
 }
@@ -42,7 +42,7 @@ fn build_initial_prompt_includes_discourse_hint_when_hosts_present() {
         "discourse.canonical.com".to_string(),
         "discourse.charmhub.io".to_string(),
     ];
-    let output = build_initial_prompt(None, &hosts);
+    let output = build_initial_prompt(None, &hosts, &[]);
 
     assert!(output.contains("discourse_fetch"));
     assert!(output.contains("discourse.canonical.com, discourse.charmhub.io"));
@@ -51,9 +51,26 @@ fn build_initial_prompt_includes_discourse_hint_when_hosts_present() {
 
 #[test]
 fn build_initial_prompt_omits_discourse_hint_when_no_hosts() {
-    let output = build_initial_prompt(None, &[]);
+    let output = build_initial_prompt(None, &[], &[]);
 
     // The static prompt mentions discourse_fetch in the Tools section,
     // but the dynamic discourse host hint should not be appended.
     assert!(!output.contains("discourse.canonical.com"));
+}
+
+#[test]
+fn build_initial_prompt_includes_mailing_list_hint_when_lists_present() {
+    let lists = vec!["ubuntu-release".to_string(), "ubuntu-devel".to_string()];
+    let output = build_initial_prompt(None, &[], &lists);
+
+    assert!(output.contains("mailing_list_threads"));
+    assert!(output.contains("ubuntu-release, ubuntu-devel"));
+    assert!(output.contains("MUST call mailing_list_threads"));
+}
+
+#[test]
+fn build_initial_prompt_omits_mailing_list_hint_when_no_lists() {
+    let output = build_initial_prompt(None, &[], &[]);
+
+    assert!(!output.contains("MUST call mailing_list_threads"));
 }

@@ -2,6 +2,7 @@ use newsagent::agent::Agent;
 use newsagent::config::AppConfig;
 use newsagent::tools::discourse::DiscourseConfig;
 use newsagent::tools::glean::GleanConfig;
+use newsagent::tools::mailing_list::MailingListConfig;
 use newsagent::tools::todoist::TodoistConfig;
 use newsagent::tools::web::WebConfig;
 
@@ -22,6 +23,7 @@ fn agent_new_fails_when_glean_dir_missing() {
         },
         web: WebConfig::default(),
         discourse: DiscourseConfig::default(),
+        mailing_list: MailingListConfig::default(),
     };
 
     match Agent::new(config) {

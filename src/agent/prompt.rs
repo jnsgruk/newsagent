@@ -21,6 +21,10 @@ You have the following tools. Use them — do not attempt to browse or verify an
   more complete content and works without authentication for public posts. When an API key is
   configured it can also access private/restricted content. See the dynamic hints below for
   which hosts are configured.
+- **mailing_list_threads** — fetch recent discussion threads from configured Ubuntu mailing lists.
+  Returns deduplicated threads from the last 30 days. This tool takes no arguments. **Always call
+  this tool** when mailing lists are configured — do not wait for Todoist tasks to reference
+  mailing lists.
 
 When a URL needs to be read, call the appropriate tool. If you cannot fetch a URL, note it in the
 Editor Review Notes (see below) and write what you can from the task title alone.
@@ -305,7 +309,11 @@ Get all the details in the [release notes](https://github.com/canonical/pebble/r
 ```
 "#;
 
-pub fn build_initial_prompt(section: Option<&str>, discourse_hosts: &[String]) -> String {
+pub fn build_initial_prompt(
+    section: Option<&str>,
+    discourse_hosts: &[String],
+    mailing_list_names: &[String],
+) -> String {
     let section_hint = section
         .filter(|s| !s.trim().is_empty())
         .map(|s| {
@@ -325,5 +333,17 @@ pub fn build_initial_prompt(section: Option<&str>, discourse_hosts: &[String]) -
         )
     };
 
-    format!("{}{}{}", PROMPT, section_hint, discourse_hint)
+    let mailing_list_hint = if mailing_list_names.is_empty() {
+        String::new()
+    } else {
+        format!(
+            "\n\nIMPORTANT: The mailing_list_threads tool is configured with these lists: {}. You MUST call mailing_list_threads in addition to todoist_tasks — mailing list discussions are not tracked in Todoist and will only appear if you call this tool. Review the returned threads and include any notable announcements, decisions, or discussions as newsletter entries (typically Tier 4 items). Not every thread warrants inclusion — use editorial judgement to select threads that are relevant and interesting to the audience.",
+            mailing_list_names.join(", ")
+        )
+    };
+
+    format!(
+        "{}{}{}{}",
+        PROMPT, section_hint, discourse_hint, mailing_list_hint
+    )
 }

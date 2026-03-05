@@ -1,5 +1,6 @@
 use crate::tools::discourse::DiscourseConfig;
 use crate::tools::glean::GleanConfig;
+use crate::tools::mailing_list::MailingListConfig;
 use crate::tools::todoist::TodoistConfig;
 use crate::tools::web::WebConfig;
 use serde::Deserialize;
@@ -18,6 +19,8 @@ pub struct AppConfig {
     pub web: WebConfig,
     #[serde(flatten)]
     pub discourse: DiscourseConfig,
+    #[serde(flatten)]
+    pub mailing_list: MailingListConfig,
 }
 
 impl AppConfig {
