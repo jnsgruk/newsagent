@@ -35,16 +35,31 @@ For some products, the GitHub release page is just a tag with an auto-generated 
 detailed, narrative release notes live on documentation.ubuntu.com. **Always browse the
 documentation URL in addition to the GitHub release** for the products below.
 
+Documentation on `documentation.ubuntu.com` and `docs.ubuntu.com` is versioned using channel slugs
+(`latest`, `stable`, `en/latest`, etc.) rather than explicit version numbers. **Always use the
+channel slug, never construct a version-number path.** The product documentation index at
+`https://docs.ubuntu.com/` lists all products and their canonical documentation roots.
+
 Construct the documentation URL from the version number using these templates:
 
-- **Juju**: `https://documentation.ubuntu.com/juju/{major.minor}/releasenotes/juju_{major.minor}.x/`
-  Example: for Juju 3.6.14 → browse `https://documentation.ubuntu.com/juju/3.6/releasenotes/juju_3.6.x/`
+- **Juju**: always browse `https://documentation.ubuntu.com/juju/latest/releasenotes/` — this index
+  page covers all active release lines (2.9, 3.6, 4.x) and is the canonical entry point. Do not
+  construct version-specific paths.
 
-- **Snapcraft**: `https://documentation.ubuntu.com/snapcraft/stable/release-notes/snapcraft-{major}-{minor}/`
-  Example: for Snapcraft 8.14.2 → browse `https://documentation.ubuntu.com/snapcraft/stable/release-notes/snapcraft-8-14/`
+- **Snapcraft**: `https://documentation.ubuntu.com/snapcraft/latest/release-notes/` lists all
+  supported releases. Individual release notes are at
+  `https://documentation.ubuntu.com/snapcraft/latest/snapcraft-{major}-{minor}/`
+  Example: for Snapcraft 8.14.2 → browse `https://documentation.ubuntu.com/snapcraft/latest/snapcraft-8-14/`
 
-- **Rockcraft**: `https://documentation.ubuntu.com/rockcraft/{version}/release-notes/rockcraft-{major}-{minor}/`
-  Example: for Rockcraft 1.17.0 → browse `https://documentation.ubuntu.com/rockcraft/1.17.0/release-notes/rockcraft-1-17/`
+- **Rockcraft**: `https://documentation.ubuntu.com/rockcraft/latest/release-notes/` lists all
+  supported releases. Individual release notes are at
+  `https://documentation.ubuntu.com/rockcraft/latest/rockcraft-{major}-{minor}/`
+  Example: for Rockcraft 1.17.0 → browse `https://documentation.ubuntu.com/rockcraft/latest/rockcraft-1-17/`
+
+- **Charmcraft**: `https://documentation.ubuntu.com/charmcraft/latest/release-notes/` lists all
+  supported releases. Individual release notes are at
+  `https://documentation.ubuntu.com/charmcraft/latest/charmcraft-{major}.{minor}/`
+  Example: for Charmcraft 4.1.0 → browse `https://documentation.ubuntu.com/charmcraft/latest/charmcraft-4.1/`
 
 - **Juju Terraform Provider**: The GitHub release page lists PRs but lacks narrative detail. Also
   browse the CHANGELOG: `https://github.com/juju/terraform-provider-juju/blob/main/CHANGELOG.md`
@@ -214,7 +229,10 @@ separate entries for each.
 
 - **Release notes in headings**: link to the GitHub release tag URL.
 - **Documentation links**: prefer `https://documentation.ubuntu.com/` or `https://docs.ubuntu.com/`
-  for official docs. Use version-specific URLs (e.g. `.../juju/3.6/...` not `.../latest/...`).
+  for official docs. Use the channel slug (`latest`, `stable`, `en/latest`) rather than an explicit
+  version number in the path — this matches how these sites are structured and avoids dead links as
+  versions change. The product index at `https://docs.ubuntu.com/` is a useful starting point when
+  you need to find a product's documentation root.
 - **PR references**: `[#123](https://github.com/org/repo/pull/123)` inline.
 - **Discourse references**: "on Discourse", "on the Charmhub Discourse", "in the
   [Discourse post](url)".
@@ -276,8 +294,9 @@ Format:
 ```
 
 Categories to consider:
-1. **Links to verify** — URLs that could not be confirmed live, URLs pointing to `latest` instead
-   of a version-specific path, URLs inferred rather than found in the source.
+1. **Links to verify** — URLs that could not be confirmed live, URLs using an explicit version
+   number where a channel slug (`latest`, `stable`) should be used, URLs inferred rather than found
+   in the source.
 2. **Details to confirm** — contributor names/handles that may need adjusting, channel/track claims
    (stable vs candidate vs edge), ambiguous version numbers.
 3. **Content suggestions** — entries where a congratulatory note or editorial colour might be
