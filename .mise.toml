@@ -1,0 +1,23 @@
+[tools]
+rust = "stable"
+prek = "latest"
+
+[tasks.fmt]
+description = "Check formatting"
+run = "cargo fmt --check"
+
+[tasks.lint]
+description = "Run clippy lints"
+run = "cargo clippy"
+
+[tasks.build]
+description = "Build the project"
+run = "cargo build"
+
+[tasks.test]
+description = "Run all tests (unit + integration)"
+run = "cargo test"
+
+[tasks.install-hooks]
+description = "Install pre-commit hooks"
+run = "pre-commit install"

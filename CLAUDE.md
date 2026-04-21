@@ -4,15 +4,18 @@ AI agent that generates the "Tech Updates" section of a newsletter. Uses Gemini 
 
 ## Build & Test
 
+Run `mise install` once to set up the Rust toolchain. Use `mise run <task>` for common tasks (see `.mise.toml`). CI runs the same tasks.
+
 ```bash
-cargo build                  # debug build
-cargo test                   # run all tests (unit + integration)
-cargo fmt --check            # check formatting
-cargo clippy                 # lint
+mise run build               # debug build
+mise run test                # run all tests (unit + integration)
+mise run fmt                 # check formatting
+mise run lint                # lint
 cargo run                    # run the agent (requires .env)
+mise run install-hooks       # install pre-commit hooks (once, after cloning)
 ```
 
-Nix dev shell is available via `nix develop` (or automatically with direnv). CI runs `cargo fmt --check`, `cargo clippy`, `cargo build`, and `cargo test` inside the Nix shell.
+Pre-commit hooks run `fmt` and `lint` automatically on commit via `.pre-commit-config.yaml`.
 
 ## Architecture
 
@@ -82,6 +85,10 @@ tests/
 - Filesystem tools use `tempfile::TempDir`.
 - All async tests use `#[tokio::test]`.
 - Tests construct tool structs directly with their `Config` types (not through `AppConfig`).
+
+## Workflow
+
+Always run `prek run -av` before returning work to the user. This runs all pre-commit hooks (fmt, lint, test) across all files and confirms everything passes.
 
 ## Code Style
 

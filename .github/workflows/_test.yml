@@ -11,11 +11,11 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v5
 
-      - name: Install nix
-        uses: DeterminateSystems/nix-installer-action@v19
+      - name: Install mise
+        uses: jdx/mise-action@v2
 
       - name: Build
-        run: nix develop -c cargo build
+        run: mise run build
 
       - name: Run tests
-        run: nix develop -c cargo test
+        run: mise run test

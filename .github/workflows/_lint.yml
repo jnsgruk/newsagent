@@ -11,11 +11,11 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v5
 
-      - name: Install nix
-        uses: DeterminateSystems/nix-installer-action@v19
+      - name: Install mise
+        uses: jdx/mise-action@v2
 
       - name: Check formatting
-        run: nix develop -c cargo fmt --check
+        run: mise run fmt
 
       - name: Lint
-        run: nix develop -c cargo clippy
+        run: mise run lint
