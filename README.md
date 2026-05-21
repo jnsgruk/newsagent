@@ -58,6 +58,10 @@ Newsagent is configured via environment variables. You can set these in your she
 
 ## Setup & Usage
 
+1.  **Install**: Get the latest binary with [mise](https://mise.jdx.dev/):
+    ```bash
+    mise use -g github:jnsgruk/newsagent
+    ```
 1.  **Install Dependencies**: Ensure you have [Rust](https://www.rust-lang.org/) installed.
 2.  **Configure Environment**: Create a `.env` file with the necessary variables.
     ```bash
