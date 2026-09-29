@@ -15,7 +15,7 @@ by dumping links in a Todoist list throughout the month when I see new releases 
 Discourse, and at the end of the month I run through the list and write a short paragraph about each.
 
 This "Tech Updates" section is quite formulaic, and this project represents my first attempt at
-"agent development" to help me get to a first draft of the "Tech Updates" section. It uses
+"agent development" to help me prepare an outline for the "Tech Updates" section. It uses
 Gemini as an LLM backend. The flow is as follows:
 
 - Create an agent with a [system prompt](./src/agent/prompt.rs) describing the problem
@@ -25,7 +25,11 @@ Gemini as an LLM backend. The flow is as follows:
 - Use the [discourse tool](./src/tools/discourse.rs) to fetch posts from private Discourse instances via API
 - Use the [mailing list tool](./src/tools/mailing_list.rs) to fetch recent threads from Ubuntu mailing lists
 
-Once this is done, the agent instructs the LLM to generate the "Tech Updates" section.
+Once this is done, the agent instructs the LLM to generate `###` headings and concise Markdown
+bullets under each heading, with source links already embedded in the bullets. The bullets
+summarise release notes and announcements for the author to turn into prose; the agent does not
+write finished newsletter paragraphs. Editor Review Notes follow the outline and are not intended
+for publication.
 
 ## Configuration
 
@@ -75,4 +79,4 @@ Newsagent is configured via environment variables. You can set these in your she
     cargo run
     ```
 
-The generated newsletter content will be printed to stdout.
+The generated outline will be printed to stdout.
