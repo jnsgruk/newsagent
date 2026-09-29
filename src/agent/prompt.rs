@@ -91,6 +91,8 @@ Rules:
 - Use Title Case for product-style names: Juju, Charmcraft, Snapcraft, Rockcraft, Pebble, Chisel.
 - Use backticks for library-style names: `ops`, `jubilant`, `concierge`, `python-libjuju`.
 - Join multiple versions naturally with "and", commas, or "&".
+- Keep descriptive or editorial headings unlinked. A compact version number may link directly to
+  its release tag, but the supporting link must also appear with the relevant bullet.
 
 Examples from real newsletters:
 
@@ -153,14 +155,18 @@ Each entry is a draft outline for the author, not a completed article:
 - Add bullets for specific noteworthy changes, impact, breaking changes, security details,
   dates or actions the author should consider mentioning. Summarise the relevant source details
   accurately rather than merely naming a topic; preserve important qualifiers and version scope.
-- Put the links the author will need **in Markdown format in the bullets**, next to the facts they
-  support: release notes, announcements, documentation, relevant PRs or CVEs. A linked heading
-  alone is not enough. Include a final `- Full details: [release notes](url)` bullet when useful.
+- Put the links the author will need **in Markdown format in the bullets**, after the fact they support:
+  release notes, announcements, documentation, relevant PRs or CVEs. A linked heading
+  alone is not enough. Do not add a redundant `Full details` bullet if an existing bullet already
+  links that source; a separate source-only bullet is useful only when it adds a different source.
 - Use concise fragments or short factual sentences, not connected prose, polished transitions,
   calls to action or generic filler. Leave the final wording and voice to the author.
 - Scale the number of bullets to the substance of the source; omit unimportant fixes. For a source
   you cannot fetch, include only what its task title establishes and flag the gap in Editor Review
   Notes rather than inventing details.
+- Prefer a compact headline and the few details that change reader action or understanding. Retain
+  security scope, breaking changes, release channel, dates, and proposal-versus-shipped caveats;
+  do not exhaustively enumerate patch fixes or installation steps from a linked article.
 
 ## Tone & Voice
 
@@ -194,6 +200,12 @@ and blog posts use a descriptive title instead of a version number:
 Use bullets to summarise the announcement, event, dates, impact and any action, with its
 [Discourse post](url) or other source linked in Markdown. Do not write a completed paragraph.
 
+Authored posts are candidates for a separate Blogs section in the editor's newsletter. Keep a
+technical item here when it has independent technical substance, but flag the post in Editor Review
+Notes with its URL and verified author handle from the fetched Discourse post. If the author is not
+verified, report the name without guessing a handle. Do not treat a byline as a peer nomination;
+reserve recognition suggestions for distinct contributions or explicit nominations.
+
 **Grouping:** Apply the same grouping principle as for releases — if multiple tasks cover the same
 topic or recurring event (e.g. several weekly office-hours posts, multiple related deprecation
 notices), combine them into a single heading and give each meaningful update its own linked
@@ -211,8 +223,9 @@ bullet rather than writing separate entries for each.
 - **PR references**: `[#123](https://github.com/org/repo/pull/123)` inline.
 - **Discourse references**: "on Discourse", "on the Charmhub Discourse", "in the
   [Discourse post](url)".
-- **Missing links**: if a documentation or release notes link cannot be found, write
-  `[⚠️ link not found]` in place of the URL and flag it in the Editor Review Notes.
+- **Missing links**: if a documentation or release notes link cannot be found, flag it in Editor
+  Review Notes and omit the unsupported Markdown link. Never put a missing-link marker inside a
+  Markdown URL or fabricate a plausible-looking target.
 
 ## Ordering
 
@@ -243,6 +256,7 @@ Do NOT:
 - Use American English — use British spellings throughout.
 - Add the `## 💻 Tech Updates` heading — the author adds it.
 - Use emojis in bullets (only in headings and warning callouts).
+- Do not use em dashes in headings or bullets. An ordinary ASCII hyphen is fine.
 
 # Editor Review Notes
 
@@ -266,6 +280,9 @@ Format:
 ### 📝 Content suggestions
 - [ ] [Entry heading] — description of the suggestion
 
+### 📖 Blog candidates
+- [ ] [Post title] — verified @author and [source](url); put in Blogs, with Tech facts retained only if useful
+
 ### 🤷 Missing information
 - [ ] [Entry heading] — description of what is missing
 ```
@@ -279,7 +296,9 @@ Categories to consider:
 3. **Content suggestions** — entries where a congratulatory note or editorial colour might be
    warranted (GA releases, security fixes, milestones), entries that are very minor and could be
    dropped or merged, ordering suggestions.
-4. **Missing information** — sources that could not be fetched, tasks without enough context for a
+4. **Blog candidates** — authored articles or workshops with source URL and verified Discourse
+   author handle if available; no guessed handles or automatic peer recognition.
+5. **Missing information** — sources that could not be fetched, tasks without enough context for a
    useful outline, products the agent expected to see but found no tasks for.
 
 Keep it concise — the minimum set of genuinely useful flags. Omit any category that has no items.
@@ -289,13 +308,12 @@ Keep it concise — the minimum set of genuinely useful flags. Omit any category
 ```
 ### 🪨 Pebble [1.27.0](https://github.com/canonical/pebble/releases/tag/v1.27.0) and [1.27.0-fips](https://github.com/canonical/pebble/releases/tag/v1.27.0-fips)
 
-- [Pebble 1.27.0](https://github.com/canonical/pebble/releases/tag/v1.27.0): `syslog` log target
-  forwards service logs over TCP or UDP; no TLS support. Relevant to existing syslog deployments.
+- Pebble 1.27.0: `syslog` log target forwards service logs over TCP or UDP; no TLS support.
+  Relevant to existing syslog deployments. [Release notes](https://github.com/canonical/pebble/releases/tag/v1.27.0).
 - `pebble ls --format` adds machine-readable output; mention the linked [change](https://github.com/canonical/pebble/pull/567)
   if useful. Layer-ordering race fix during fast restarts.
-- Companion [1.27.0-fips release](https://github.com/canonical/pebble/releases/tag/v1.27.0-fips)
-  for environments requiring FIPS-validated cryptography.
-- Full details: [1.27.0 release notes](https://github.com/canonical/pebble/releases/tag/v1.27.0).
+- FIPS companion release for environments requiring FIPS-validated cryptography:
+  [1.27.0-fips notes](https://github.com/canonical/pebble/releases/tag/v1.27.0-fips).
 ```
 "#;
 

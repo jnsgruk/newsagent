@@ -22,9 +22,24 @@ fn prompt_requires_source_linked_outline_instead_of_prose() {
     assert!(PROMPT.contains("Summarise the relevant source details"));
     assert!(PROMPT.contains("Do not write the finished prose yourself"));
     assert!(PROMPT.contains("# Editor Review Notes"));
-    assert!(PROMPT.contains("- Full details: [1.27.0 release notes]"));
+    assert!(!PROMPT.contains("- Full details: [1.27.0 release notes]"));
     assert!(!PROMPT.contains("## Body Content Pattern"));
     assert!(!PROMPT.contains("2–4 paragraphs"));
+}
+
+#[test]
+fn prompt_routes_authored_posts_without_inventing_recognition() {
+    assert!(PROMPT.contains("Authored posts are candidates for a separate Blogs section"));
+    assert!(PROMPT.contains("verified author handle"));
+    assert!(PROMPT.contains("Do not treat a byline as a peer nomination"));
+}
+
+#[test]
+fn prompt_keeps_links_and_bullets_editor_ready() {
+    assert!(PROMPT.contains("Do not add a redundant `Full details` bullet"));
+    assert!(PROMPT.contains("after the fact they support"));
+    assert!(PROMPT.contains("Do not use em dashes in headings or bullets"));
+    assert!(PROMPT.contains("Never put a missing-link marker inside a"));
 }
 
 #[test]
