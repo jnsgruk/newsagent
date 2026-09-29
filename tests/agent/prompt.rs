@@ -16,6 +16,18 @@ fn prompt_contains_browse_web_instruction() {
 }
 
 #[test]
+fn prompt_requires_source_linked_outline_instead_of_prose() {
+    assert!(PROMPT.contains("write Markdown `- ` bullets, not paragraphs"));
+    assert!(PROMPT.contains("A linked heading\n  alone is not enough"));
+    assert!(PROMPT.contains("Summarise the relevant source details"));
+    assert!(PROMPT.contains("Do not write the finished prose yourself"));
+    assert!(PROMPT.contains("# Editor Review Notes"));
+    assert!(PROMPT.contains("- Full details: [1.27.0 release notes]"));
+    assert!(!PROMPT.contains("## Body Content Pattern"));
+    assert!(!PROMPT.contains("2–4 paragraphs"));
+}
+
+#[test]
 fn build_initial_prompt_includes_base_prompt() {
     let output = build_initial_prompt(None, &[], &[]);
 
