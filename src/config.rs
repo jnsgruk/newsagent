@@ -10,6 +10,8 @@ pub struct AppConfig {
     pub gemini_api_key: String,
     #[serde(default = "default_gemini_model")]
     pub gemini_model: String,
+    #[serde(default = "default_max_turns")]
+    pub max_turns: usize,
 
     #[serde(flatten)]
     pub todoist: TodoistConfig,
@@ -31,4 +33,8 @@ impl AppConfig {
 
 fn default_gemini_model() -> String {
     "gemini-3.1-pro-preview".to_string()
+}
+
+fn default_max_turns() -> usize {
+    100
 }

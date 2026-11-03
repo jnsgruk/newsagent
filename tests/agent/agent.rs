@@ -11,6 +11,7 @@ fn agent_new_fails_when_glean_dir_missing() {
     let config = AppConfig {
         gemini_api_key: "test-key".to_string(),
         gemini_model: "test-model".to_string(),
+        max_turns: 100,
         todoist: TodoistConfig {
             api_token: "todo-token".to_string(),
             project_id: "project-id".to_string(),

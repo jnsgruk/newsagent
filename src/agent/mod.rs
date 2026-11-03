@@ -107,7 +107,7 @@ impl Agent {
         log::info!("sending prompt to model");
         self.agent
             .prompt(prompt)
-            .multi_turn(20)
+            .multi_turn(self.config.max_turns)
             .await
             .map_err(Error::from)
     }
