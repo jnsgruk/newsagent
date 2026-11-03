@@ -13,6 +13,22 @@ fn required_env_vars() -> Vec<(&'static str, &'static str)> {
 }
 
 #[test]
+fn test_config_has_budget_for_large_newsletters() {
+    let _guard = with_newsagent_env(required_env_vars());
+    let config = AppConfig::from_env().expect("Failed to parse config");
+    assert_eq!(config.max_turns, 100);
+}
+
+#[test]
+fn test_config_accepts_explicit_turn_budget() {
+    let mut vars = required_env_vars();
+    vars.push(("NEWSAGENT_MAX_TURNS", "64"));
+    let _guard = with_newsagent_env(vars);
+    let config = AppConfig::from_env().expect("Failed to parse config");
+    assert_eq!(config.max_turns, 64);
+}
+
+#[test]
 fn test_config_loads_valid_config() {
     let _guard = with_newsagent_env(required_env_vars());
 

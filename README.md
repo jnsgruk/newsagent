@@ -49,6 +49,7 @@ Newsagent is configured via environment variables. You can set these in your she
 | Variable                            | Description                                           | Default                   |
 | :---------------------------------- | :---------------------------------------------------- | :------------------------ |
 | `NEWSAGENT_GEMINI_MODEL`            | The Gemini model to use.                              | `gemini-3-pro-preview`    |
+| `NEWSAGENT_MAX_TURNS`               | Maximum model/tool rounds before stopping. Increase for large input queues. | `100` |
 | `NEWSAGENT_TODOIST_PROJECT_SECTION` | Specific section ID within the Todoist project.       |                           |
 | `NEWSAGENT_TODOIST_BASE_URL`        | Base URL for the Todoist API.                         | `https://api.todoist.com` |
 | `NEWSAGENT_GLEAN_FILTER`            | Glob pattern to filter files in the glean directory.  |                           |
