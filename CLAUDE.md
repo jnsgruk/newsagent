@@ -21,9 +21,10 @@ Pre-commit hooks run `fmt` and `lint` automatically on commit via `.pre-commit-c
 
 ```
 src/
-├── main.rs              # Entry point: parses CLI flags, loads .env, parses config, runs agent
+├── main.rs              # Entry point: parses CLI, loads .env, runs agent or check-mentions
 ├── lib.rs               # Module declarations
 ├── config.rs            # AppConfig (flat env var struct via envy)
+├── mentions.rs          # check-mentions: @handle extraction + Discourse user lookup
 ├── output.rs            # Exclusive, no-overwrite writes for --output
 ├── agent/
 │   ├── mod.rs           # Agent struct wrapping rig::agent::Agent
@@ -68,6 +69,7 @@ tests/
 ├── common/mod.rs        # EnvGuard + with_newsagent_env() helper
 ├── cli.rs               # Binary flag tests (no configuration needed)
 ├── config.rs            # Config parsing tests
+├── mentions.rs          # Mention extraction + lookup tests
 ├── output.rs            # --output file creation tests
 ├── agent/               # Agent + prompt tests
 │   ├── main.rs

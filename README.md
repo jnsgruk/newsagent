@@ -84,3 +84,22 @@ The generated outline will be printed to stdout. Pass `--output PATH` to write i
 file (mode `0600`) instead; newsagent refuses to start if `PATH` already exists and never
 overwrites or follows a symlink. Run `newsagent --help` for the available flags;
 `--help` and `--version` do not read any configuration.
+
+### Checking mentions
+
+`newsagent check-mentions FILE` checks every `@handle` in a Markdown draft against each Discourse
+instance in `NEWSAGENT_DISCOURSE_INSTANCES`, in the configured order.
+Mentions in email addresses, URLs and Markdown link text such as
+`[@user](https://github.com/user)` are ignored. Each mention is reported on its own line:
+
+```text
+valid @alice (discourse.canonical.com)
+suggest @alyce -> @alice (discourse.charmhub.io)
+unknown @sam (candidates: @sam1 (discourse.canonical.com), @sam2 (discourse.ubuntu.com))
+SUMMARY valid=1 suggest=1 unknown=1
+```
+
+A mention is `valid` when the user exists on any instance; the first match is reported.
+Otherwise newsagent searches every instance for the handle: a single result across all of them is
+reported as a `suggest`ion to review, and anything else as `unknown` with up to five candidates. The command exits `0` when every mention is valid, `1`
+when any needs attention and `2` on error.
