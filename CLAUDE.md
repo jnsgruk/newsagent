@@ -21,7 +21,7 @@ Pre-commit hooks run `fmt` and `lint` automatically on commit via `.pre-commit-c
 
 ```
 src/
-├── main.rs              # Entry point: loads .env, parses config, runs agent
+├── main.rs              # Entry point: parses CLI flags, loads .env, parses config, runs agent
 ├── lib.rs               # Module declarations
 ├── config.rs            # AppConfig (flat env var struct via envy)
 ├── agent/
@@ -65,6 +65,7 @@ Tests live in `tests/` as integration tests:
 ```
 tests/
 ├── common/mod.rs        # EnvGuard + with_newsagent_env() helper
+├── cli.rs               # Binary flag tests (no configuration needed)
 ├── config.rs            # Config parsing tests
 ├── agent/               # Agent + prompt tests
 │   ├── main.rs
