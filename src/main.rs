@@ -3,6 +3,7 @@ use clap::{Parser, Subcommand};
 use env_logger::Env;
 use newsagent::agent::Agent;
 use newsagent::config::AppConfig;
+use newsagent::links::{extract_links, LinkChecker, LinkStatus};
 use newsagent::mentions::{check_mention, extract_mentions, MentionChecker, MentionStatus};
 use newsagent::output;
 use newsagent::tools::discourse::DiscourseConfig;
@@ -40,6 +41,15 @@ enum Command {
         #[arg(value_name = "FILE")]
         file: PathBuf,
     },
+    #[command(
+        about = "Check that http(s) links in a Markdown file are reachable",
+        after_help = "Retries temporary failures after 1s, 5s and 10s. \
+            Exits 0 when every link is reachable, 1 when any is not, 2 on error."
+    )]
+    CheckLinks {
+        #[arg(value_name = "FILE")]
+        file: PathBuf,
+    },
 }
 
 #[tokio::main]
@@ -60,13 +70,16 @@ async fn main() -> anyhow::Result<ExitCode> {
     env_logger::Builder::from_env(Env::default().default_filter_or("info")).init();
 
     match cli.command {
-        Some(Command::CheckMentions { file }) => match check_mentions(&file).await {
-            Ok(code) => Ok(code),
-            Err(err) => {
+        Some(command) => {
+            let result = match command {
+                Command::CheckMentions { file } => check_mentions(&file).await,
+                Command::CheckLinks { file } => check_links(&file).await,
+            };
+            Ok(result.unwrap_or_else(|err| {
                 eprintln!("Error: {err:#}");
-                Ok(ExitCode::from(2))
-            }
-        },
+                ExitCode::from(2)
+            }))
+        }
         None => {
             generate(cli.output.as_deref()).await?;
             Ok(ExitCode::SUCCESS)
@@ -136,6 +149,34 @@ async fn check_mentions(file: &Path) -> anyhow::Result<ExitCode> {
     println!("SUMMARY valid={valid} suggest={suggested} unknown={unknown}");
 
     Ok(if suggested + unknown == 0 {
+        ExitCode::SUCCESS
+    } else {
+        ExitCode::from(1)
+    })
+}
+
+async fn check_links(file: &Path) -> anyhow::Result<ExitCode> {
+    let text =
+        std::fs::read_to_string(file).with_context(|| format!("Reading {}", file.display()))?;
+    let checker = LinkChecker::with_default_retries()?;
+
+    let (mut ok, mut broken, mut temporary) = (0, 0, 0);
+    for (link, status) in checker.check_all(extract_links(&text)).await {
+        match status {
+            LinkStatus::Ok => ok += 1,
+            LinkStatus::Broken(reason) => {
+                broken += 1;
+                println!("broken {reason} {} (line {})", link.url, link.line);
+            }
+            LinkStatus::Temporary(reason) => {
+                temporary += 1;
+                println!("temporary {reason} {} (line {})", link.url, link.line);
+            }
+        }
+    }
+    println!("SUMMARY ok={ok} broken={broken} temporary={temporary}");
+
+    Ok(if broken + temporary == 0 {
         ExitCode::SUCCESS
     } else {
         ExitCode::from(1)
