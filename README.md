@@ -80,4 +80,46 @@ Newsagent is configured via environment variables. You can set these in your she
     cargo run
     ```
 
-The generated outline will be printed to stdout.
+The generated outline will be printed to stdout. Pass `--output PATH` to write it to a new
+file (mode `0600`) instead; newsagent refuses to start if `PATH` already exists and never
+overwrites or follows a symlink. Run `newsagent --help` for the available flags;
+`--help` and `--version` do not read any configuration.
+
+### Checking mentions
+
+`newsagent check-mentions FILE` checks every `@handle` in a Markdown draft against each Discourse
+instance in `NEWSAGENT_DISCOURSE_INSTANCES`, in the configured order.
+Mentions in email addresses, URLs and Markdown link text such as
+`[@user](https://github.com/user)` are ignored. Each mention is reported on its own line:
+
+```text
+valid @alice (discourse.canonical.com)
+suggest @alyce -> @alice (discourse.charmhub.io)
+unknown @sam (candidates: @sam1 (discourse.canonical.com), @sam2 (discourse.ubuntu.com))
+SUMMARY valid=1 suggest=1 unknown=1
+```
+
+A mention is `valid` when the user exists on any instance; the first match is reported.
+Otherwise newsagent searches every instance for the handle: a single result across all of them is
+reported as a `suggest`ion to review, and anything else as `unknown` with up to five candidates. The command exits `0` when every mention is valid, `1`
+when any needs attention and `2` on error.
+
+### Checking links
+
+`newsagent check-links FILE` checks that every `http(s)` link in a Markdown file is reachable.
+Links come from Markdown syntax (inline, reference, `<autolink>` and image links); bare URLs in
+text and links inside code are ignored, and each URL is checked once. Redirects are not followed,
+so any `2xx` or `3xx` response counts as reachable.
+
+Failures that may be temporary (`403`, `408`, `429`, `5xx`, timeouts and connection failures)
+are retried after 1s, 5s and 10s. Only failing links are printed, with their first line:
+
+```text
+broken 404 https://example.com/missing (line 12)
+temporary 503 https://example.com/flaky (line 30)
+SUMMARY ok=40 broken=1 temporary=1
+```
+
+`broken` means the server answered that the page is not there; `temporary` means it still failed
+after retrying and may be rate limiting, blocking bots or down. The command exits `0` when every
+link is reachable, `1` when any is not and `2` on error. No configuration is needed.
