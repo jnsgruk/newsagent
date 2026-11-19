@@ -24,6 +24,7 @@ src/
 ├── main.rs              # Entry point: parses CLI flags, loads .env, parses config, runs agent
 ├── lib.rs               # Module declarations
 ├── config.rs            # AppConfig (flat env var struct via envy)
+├── output.rs            # Exclusive, no-overwrite writes for --output
 ├── agent/
 │   ├── mod.rs           # Agent struct wrapping rig::agent::Agent
 │   └── prompt.rs        # System prompt constant + dynamic prompt builder
@@ -67,6 +68,7 @@ tests/
 ├── common/mod.rs        # EnvGuard + with_newsagent_env() helper
 ├── cli.rs               # Binary flag tests (no configuration needed)
 ├── config.rs            # Config parsing tests
+├── output.rs            # --output file creation tests
 ├── agent/               # Agent + prompt tests
 │   ├── main.rs
 │   ├── agent.rs

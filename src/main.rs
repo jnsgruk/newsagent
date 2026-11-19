@@ -3,7 +3,9 @@ use clap::Parser;
 use env_logger::Env;
 use newsagent::agent::Agent;
 use newsagent::config::AppConfig;
+use newsagent::output;
 use std::env;
+use std::path::PathBuf;
 
 #[derive(Parser)]
 #[command(
@@ -11,11 +13,22 @@ use std::env;
     about = "Draft a source-linked Tech Updates outline for an engineering newsletter",
     after_help = "Configuration is read from NEWSAGENT_* environment variables or a .env file."
 )]
-struct Cli {}
+struct Cli {
+    #[arg(
+        short,
+        long,
+        value_name = "PATH",
+        help = "Write the outline to a new file instead of stdout; never overwrites"
+    )]
+    output: Option<PathBuf>,
+}
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    Cli::parse();
+    let cli = Cli::parse();
+    if let Some(path) = &cli.output {
+        output::ensure_absent(path)?;
+    }
 
     // Parse the specified (or default) .env file
     let dotenv_path = env::var("NEWSAGENT_DOTENV_PATH").unwrap_or_else(|_| ".env".to_string());
@@ -31,6 +44,9 @@ async fn main() -> anyhow::Result<()> {
     let agent = Agent::new(config.clone())?;
     let response = agent.prompt().await?;
 
-    println!("{}", response);
+    match &cli.output {
+        Some(path) => output::write_new(path, &response)?,
+        None => println!("{}", response),
+    }
     Ok(())
 }

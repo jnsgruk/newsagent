@@ -1,4 +1,5 @@
 use std::process::{Command, Output};
+use tempfile::TempDir;
 
 fn newsagent(args: &[&str]) -> Output {
     Command::new(env!("CARGO_BIN_EXE_newsagent"))
@@ -15,7 +16,7 @@ fn info_flags_exit_without_configuration() {
         (
             "help",
             "--help",
-            &["Draft a source-linked Tech Updates outline"],
+            &["Draft a source-linked Tech Updates outline", "--output"],
         ),
         (
             "version",
@@ -36,4 +37,17 @@ fn info_flags_exit_without_configuration() {
             );
         }
     }
+}
+
+#[test]
+fn existing_output_is_rejected_before_generation() {
+    let dir = TempDir::new().unwrap();
+    let path = dir.path().join("outline.md");
+    std::fs::write(&path, "draft").unwrap();
+
+    let output = newsagent(&["--output", path.to_str().unwrap()]);
+
+    assert!(!output.status.success());
+    assert!(String::from_utf8_lossy(&output.stderr).contains("already exists"));
+    assert_eq!(std::fs::read_to_string(&path).unwrap(), "draft");
 }

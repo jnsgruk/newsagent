@@ -80,5 +80,7 @@ Newsagent is configured via environment variables. You can set these in your she
     cargo run
     ```
 
-The generated outline will be printed to stdout. Run `newsagent --help` for the available flags;
+The generated outline will be printed to stdout. Pass `--output PATH` to write it to a new
+file (mode `0600`) instead; newsagent refuses to start if `PATH` already exists and never
+overwrites or follows a symlink. Run `newsagent --help` for the available flags;
 `--help` and `--version` do not read any configuration.
